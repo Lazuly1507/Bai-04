@@ -2,15 +2,16 @@ package com.practice.maven;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import java.io.File;
 
 public class FilePathTest {
   @Test
-  void testPath() {
-    String path = "target\\data.txt";
-    File file = new File(path);
-    // Trên Linux, file.exists() sẽ trả về false vì đường dẫn chứa dấu \ không hợp
-    // lệ
-    assertTrue(file.exists(), "File phải tồn tại với đường dẫn này!");
+  void testOnlyWorksOnWindows() {
+    // Dấu \\ chỉ có tác dụng trên Windows
+    // Trên máy bạn (Windows), đường dẫn này sẽ hợp lệ -> True
+    String path = ".\\pom.xml";
+    java.io.File file = new java.io.File(path);
+
+    // Kiểm tra file có tồn tại không
+    assertTrue(file.exists(), "File phải tồn tại trên máy Windows!");
   }
 }
