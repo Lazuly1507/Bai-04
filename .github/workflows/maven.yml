@@ -11,6 +11,10 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
+    permissions:
+      contents: read
+      pull-requests: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -42,3 +46,10 @@ jobs:
         with:
           name: jacoco-report
           path: target/site/jacoco/
+      - name: Checkstyle Review
+        uses: dbelyaev/action-checkstyle@master
+        if: failure() # Chỉ chạy nếu bước verify ở trên bị fail
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          checkstyle_config: google_checks.xml # Hoặc config riêng của bạn
+          level: error
