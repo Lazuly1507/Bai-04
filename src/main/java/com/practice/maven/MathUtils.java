@@ -23,6 +23,27 @@ public class MathUtils {
   }
 
   /**
+   * Divides two integers.
+   *
+   * @param a the numerator
+   * @param b the denominator
+   * @return the result of a divided by b
+   * @throws ArithmeticException if b is zero
+   */
+  public int divide(int a, int b) {
+    // Mức INFO: Ghi lại các mốc quan trọng
+    logger.info("Thực hiện phép chia: {} / {}", a, b);
+
+    try {
+      return a / b;
+    } catch (ArithmeticException e) {
+      // Mức ERROR: Ghi lại lỗi và stack trace
+      logger.error("Lỗi toán học khi chia cho 0: {}", e.getMessage());
+      throw e;
+    }
+  }
+
+  /**
    * Main method to demonstrate the usage of MathUtils.
    *
    * @param args
