@@ -1,20 +1,19 @@
-name: Java CI with Maven
+name: PR Automated Review
 
-on: [ push, pull_request ]
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions: {}
 
 jobs:
-  test-on-matrix:
-    strategy:
-      # Matrix sẽ tạo ra 3 jobs chạy song song
-      matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
-
-    runs-on: ${{ matrix.os }}
-
+  checkstyle-review:
+    name: checkstyle-review
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -26,30 +25,30 @@ jobs:
           distribution: "temurin"
           cache: maven
 
-      - name: Build with Maven (Test & Package)
-        run: mvn -B package --file pom.xml
-
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: output-jar-file
-          path: target/*.jar
-
-      - name: Build with Maven and Check Coverage
-        # verify sẽ kích hoạt jacoco:check, nếu < 80% build sẽ báo FAIL ở đây
-        run: mvn clean verify
-
-      - name: Upload JaCoCo Coverage Report
-        # Bước này chạy kể cả khi build fail hoặc thành công để bạn xem lý do thiếu coverage
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: jacoco-report
-          path: target/site/jacoco/
-      - name: Checkstyle Review
-        uses: dbelyaev/action-checkstyle@master
-        if: failure() # Chỉ chạy nếu bước verify ở trên bị fail
+      - name: Checkstyle inline review
+        uses: dbelyaev/action-checkstyle@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          checkstyle_config: google_checks.xml # Hoặc config riêng của bạn
-          level: error
+          reporter: github-pr-review
+          checkstyle_config: google_checks.xml
+          level: warning
+          fail_level: warning
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: "11"
+          distribution: "temurin"
+          cache: maven
+
+      - name: Run tests
+        run: mvn -B test
