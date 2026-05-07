@@ -30,3 +30,15 @@ jobs:
         with:
           name: output-jar-file
           path: target/*.jar
+
+      - name: Build with Maven and Check Coverage
+        # verify sẽ kích hoạt jacoco:check, nếu < 80% build sẽ báo FAIL ở đây
+        run: mvn clean verify
+
+      - name: Upload JaCoCo Coverage Report
+        # Bước này chạy kể cả khi build fail hoặc thành công để bạn xem lý do thiếu coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: target/site/jacoco/
